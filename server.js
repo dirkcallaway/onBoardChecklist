@@ -1,9 +1,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const axios = require('axios');
-require('dotenv').config()
+require('dotenv').config();
+const newUserProperties = require('./newUserProperties');
 
 const app = express();
+
 
 var port = process.env.PORT || 3000;
 
@@ -20,14 +22,13 @@ app.get('/onboard', (req, res) => {
     .then(allOnboardProperties => {
         for(property of allOnboardProperties.data.properties) {
             onboardChecklistPropertiesQuery += `&property=${property.name}`
-        }
-        
+        }    
     
-    //URL to get values of properties for a specific user
-    const userPropertyQueryURL = `https://api.hubapi.com/contacts/v1/contact/vid/${userVID}/profile?hapikey=${process.env.HS_API}${onboardChecklistPropertiesQuery}`;
-    //Array to hold names of properties and their values - to be passed to Frontend
-    const checklistPropertiesInfo = []
-    axios
+        //URL to get values of properties for a specific user
+        const userPropertyQueryURL = `https://api.hubapi.com/contacts/v1/contact/vid/${userVID}/profile?hapikey=${process.env.HS_API}${onboardChecklistPropertiesQuery}`;
+        //Array to hold names of properties and their values - to be passed to Frontend
+        const checklistPropertiesInfo = []
+        axios
         .get(userPropertyQueryURL)
         .then(response => {
             for (property in response.data.properties) {
@@ -43,19 +44,37 @@ app.get('/onboard', (req, res) => {
             }
             res.json(checklistPropertiesInfo)
         })
+        .catch(error => console.log(error))
     })
+    .catch(error => console.log(error))
 })
 
-//Check HS for User (by teacher_id held in company name)
-app.get('/login', (req, res) => {
+//Check HubSpot for User (by teacher_id held in company name)
+app.get('/user', (req, res) => {
     const userSearchQuery = `https://api.hubapi.com/contacts/v1/search/query?q=${req.query.teacher_id}&hapikey=${process.env.HS_API}`
     axios
     .get(userSearchQuery)
     .then(user => {
-        //Grab User VID
-        userVID = user.data.contacts[0].vid
-        console.log(user.data.contacts[0].properties)
+        if(user.data.total > 0){
+            //Grab User VID
+            userVID = user.data.contacts[0].vid
+            res.json({userVID: userVID})
+        } else {
+            //Set new users first name and teacher_id
+            const newUserVID = {"property" : "company", "value" : req.query.teacher_id}
+            const newUserName = {"property" : "firstname", "value" : req.query.name}
+            //Add new user info to JSON for API call
+            newUserProperties.properties.push(newUserVID, newUserName)
+            axios
+            .post(`https://api.hubapi.com/contacts/v1/contact/?hapikey=${process.env.HS_API}`, newUserProperties)
+            .then(newUser => {
+                userVID = newUser.data.vid
+                res.json({userVID: userVID})
+            })
+        }
+
     })
+    .catch(error => console.log(error))
 })
 
 app.listen(3000, () => {
