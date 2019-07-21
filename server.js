@@ -7,7 +7,7 @@ const newUserProperties = require('./newUserProperties');
 const app = express();
 
 
-var port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 //API Checks current properties for Onboard Checklist on HubSpot
 let onboardChecklistPropertiesQuery = '';
@@ -78,5 +78,5 @@ app.get('/user', (req, res) => {
 })
 
 app.listen(3000, () => {
-    console.log('Listening on port ' + port);
+    console.log('Listening on port ' + PORT);
 });
