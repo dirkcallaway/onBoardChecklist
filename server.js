@@ -1,11 +1,12 @@
 const express = require('express')
-const bodyParser = require('body-parser')
-const axios = require('axios');
-require('dotenv').config();
-const newUserProperties = require('./newUserProperties');
+const axios = require('axios')
+require('dotenv').config()
+const newUserProperties = require('./newUserProperties')
+const serveStatic = require('serve-static')
+const path = require('path')
 
 const app = express();
-
+app.use(serveStatic(path.join(__dirname, 'dist')));
 
 const PORT = process.env.PORT || 3000;
 
