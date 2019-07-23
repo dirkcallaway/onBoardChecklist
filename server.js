@@ -16,6 +16,10 @@ let onboardChecklistPropertiesQuery = '';
 const checklistPropertiesQueryURL = 'https://api.hubapi.com/properties/v1/contacts/groups/named/onboard_checklist?includeProperties=true&hapikey=' + process.env.HS_API
 let userVID = 101
 
+app.get('/', (req, res) => {
+    app.sendFile('index.html')
+})
+
 app.get('/onboard', (req, res) => {
     //Get all properties currently in Onboard Checklist and create a query string
     axios
