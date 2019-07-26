@@ -3,14 +3,14 @@ const axios = require('axios')
 require('dotenv').config()
 const newUserProperties = require('./newUserProperties')
 const updateContactProperty = require('./updateContactProperty')
-const serveStatic = require('serve-static')
 const path = require('path')
 
 const app = express();
+
 if(process.env.NODE_ENV === 'production') {
     app.use(express.static(__dirname + '/public'))
 
-    // app.get(/.*/, (req, res) => res.sendfile(__dirname + '/public/index.html'));
+    app.get(/.*/, (req, res) => res.sendfile(__dirname + '/public/index.html'));
 }
 
 
@@ -21,10 +21,6 @@ let onboardChecklistPropertiesQuery = '';
 //URL to get all properties in Onboard Checklist group on HubSpot
 const checklistPropertiesQueryURL = 'https://api.hubapi.com/properties/v1/contacts/groups/named/onboard_checklist?includeProperties=true&hapikey=' + process.env.HS_API
 let userVID = 101
-
-app.get('/', (req, res) => {
-    
-})
 
 app.get('/onboard', (req, res) => {
     //Get all properties currently in Onboard Checklist and create a query string
