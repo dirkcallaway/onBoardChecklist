@@ -2,6 +2,7 @@ const express = require('express')
 const axios = require('axios')
 require('dotenv').config()
 const newUserProperties = require('./newUserProperties')
+const updateContactProperty = require('./updateContactProperty')
 const serveStatic = require('serve-static')
 const path = require('path')
 
@@ -17,7 +18,7 @@ const checklistPropertiesQueryURL = 'https://api.hubapi.com/properties/v1/contac
 let userVID = 101
 
 app.get('/', (req, res) => {
-    app.sendFile('index.html')
+    
 })
 
 app.get('/onboard', (req, res) => {
@@ -44,7 +45,12 @@ app.get('/onboard', (req, res) => {
                         .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
                         .join(' ');
                     const checklistPropertyValue = response.data.properties[property].value
-                    checklistPropertiesInfo.push({name : checklistItemName, value : checklistPropertyValue})
+                    checklistPropertiesInfo.push(
+                        {
+                            name : checklistItemName, 
+                            value : checklistPropertyValue,
+                            propertyName : property
+                        })
                 }
             }
             res.json(checklistPropertiesInfo)
@@ -79,6 +85,17 @@ app.get('/user', (req, res) => {
         }
 
     })
+    .catch(error => console.log(error))
+})
+
+app.get('/update', (req, res) => {
+    //POST req to update contacts property
+    const updateProperty = {"property" : req.query.updateProperty, "value" : "true"};
+    updateContactProperty.properties.push(updateProperty)
+    
+    axios
+    .post(`https://api.hubapi.com/contacts/v1/contact/vid/${userVID}/profile?hapikey=${process.env.HS_API}`, updateContactProperty)
+    .then(res.status(200))
     .catch(error => console.log(error))
 })
 
