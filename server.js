@@ -10,7 +10,7 @@ const app = express();
 if(process.env.NODE_ENV === 'production') {
     app.use(express.static(__dirname + '/public'))
 
-    app.get(/.*/, (req, res) => res.sendfile(__dirname + '/public/index.html'));
+    app.get(/.*/, (req, res) => res.sendFile(__dirname + '/public/index.html'));
 }
 
 
@@ -23,7 +23,6 @@ const checklistPropertiesQueryURL = `https://api.hubapi.com/properties/v1/contac
 let userVID = 101
 
 app.get('/onboard', (req, res) => {
-    console.log(checklistPropertiesQueryURL)
     //Get all properties currently in Onboard Checklist and create a query string
     axios
     .get(checklistPropertiesQueryURL)
@@ -31,7 +30,6 @@ app.get('/onboard', (req, res) => {
         for(property of allOnboardProperties.data.properties) {
             onboardChecklistPropertiesQuery += `&property=${property.name}`
         }
-        console.log(checklistPropertiesQueryURL)
     
         //URL to get values of properties for a specific user
         const userPropertyQueryURL = `https://api.hubapi.com/contacts/v1/contact/vid/${userVID}/profile?hapikey=${process.env.HS_API}${onboardChecklistPropertiesQuery}`;
