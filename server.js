@@ -24,6 +24,7 @@ let userVID = 101
 
 app.get('/onboard', (req, res) => {
     //Get all properties currently in Onboard Checklist and create a query string
+    console.log(checklistPropertiesQueryURL);
     axios
     .get(checklistPropertiesQueryURL)
     .then(allOnboardProperties => {
