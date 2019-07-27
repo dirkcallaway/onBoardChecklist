@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 //API Checks current properties for Onboard Checklist on HubSpot
 let onboardChecklistPropertiesQuery = '';
 //URL to get all properties in Onboard Checklist group on HubSpot
-const checklistPropertiesQueryURL = 'https://api.hubapi.com/properties/v1/contacts/groups/named/onboard_checklist?includeProperties=true&hapikey=' + process.env.HS_API
+const checklistPropertiesQueryURL = `https://api.hubapi.com/properties/v1/contacts/groups/named/onboard_checklist?includeProperties=true&hapikey=${process.env.HS_API}`
 let userVID = 101
 
 app.get('/onboard', (req, res) => {
