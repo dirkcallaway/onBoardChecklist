@@ -23,13 +23,15 @@ const checklistPropertiesQueryURL = `https://api.hubapi.com/properties/v1/contac
 let userVID = 101
 
 app.get('/onboard', (req, res) => {
+    console.log(checklistPropertiesQueryURL)
     //Get all properties currently in Onboard Checklist and create a query string
     axios
     .get(checklistPropertiesQueryURL)
     .then(allOnboardProperties => {
         for(property of allOnboardProperties.data.properties) {
             onboardChecklistPropertiesQuery += `&property=${property.name}`
-        }    
+        }
+        console.log(checklistPropertiesQueryURL)
     
         //URL to get values of properties for a specific user
         const userPropertyQueryURL = `https://api.hubapi.com/contacts/v1/contact/vid/${userVID}/profile?hapikey=${process.env.HS_API}${onboardChecklistPropertiesQuery}`;
