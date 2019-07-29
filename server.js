@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 3000;
 let onboardChecklistPropertiesQuery = '';
 //URL to get all properties in Onboard Checklist group on HubSpot
 const checklistPropertiesQueryURL = `https://api.hubapi.com/properties/v1/contacts/groups/named/onboard_checklist?includeProperties=true&hapikey=${process.env.HS_API}`
-let userVID = 101
+let userVID
 
 app.get('/onboard', (req, res) => {
     //Get all properties currently in Onboard Checklist and create a query string
@@ -56,14 +56,14 @@ app.get('/onboard', (req, res) => {
             }
             res.json(checklistPropertiesInfo)
         })
-        .catch(error => console.log(error))
+        .catch(error => console.log("User Property Query: " + error))
     })
-    .catch(error => console.log(error))
+    .catch(error => console.log("Checklist Property Query: " + error))
 })
 
 //Check HubSpot for User (by teacher_id held in company name)
 app.get('/user', (req, res) => {
-    const userSearchQuery = `https://api.hubapi.com/contacts/v1/search/query?q=${req.query.teacher_id}&hapikey=${process.env.HS_API}`
+    let userSearchQuery = `https://api.hubapi.com/contacts/v1/search/query?q=${req.query.teacher_id}&hapikey=${process.env.HS_API}`
     axios
     .get(userSearchQuery)
     .then(user => {
@@ -76,7 +76,9 @@ app.get('/user', (req, res) => {
             const newUserVID = {"property" : "company", "value" : req.query.teacher_id}
             const newUserName = {"property" : "firstname", "value" : req.query.name}
             //Add new user info to JSON for API call
-            newUserProperties.properties.push(newUserVID, newUserName)
+            let copyNewUserProperties = [...newUserProperties.properties]
+            copyNewUserProperties.push(newUserVID, newUserName)
+            newUserProperties.properties = copyNewUserProperties
             axios
             .post(`https://api.hubapi.com/contacts/v1/contact/?hapikey=${process.env.HS_API}`, newUserProperties)
             .then(newUser => {
@@ -91,9 +93,9 @@ app.get('/user', (req, res) => {
 
 app.get('/update', (req, res) => {
     //POST req to update contacts property
-    const updateProperty = {"property" : req.query.updateProperty, "value" : "true"};
+    let updateProperty = {"property" : req.query.updateProperty, "value" : "true"};
+    updateContactProperty.properties = []
     updateContactProperty.properties.push(updateProperty)
-    
     axios
     .post(`https://api.hubapi.com/contacts/v1/contact/vid/${userVID}/profile?hapikey=${process.env.HS_API}`, updateContactProperty)
     .then(res.status(200))
