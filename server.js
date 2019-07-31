@@ -64,6 +64,7 @@ app.get('/onboard', (req, res) => {
 //Check HubSpot for User (by teacher_id held in company name)
 app.get('/user', (req, res) => {
     let userSearchQuery = `https://api.hubapi.com/contacts/v1/search/query?q=${req.query.teacher_id}&hapikey=${process.env.HS_API}`
+    console.log(userSearchQuery, userVID)
     axios
     .get(userSearchQuery)
     .then(user => {
@@ -72,15 +73,15 @@ app.get('/user', (req, res) => {
             userVID = user.data.contacts[0].vid
             res.json({userVID: userVID})
         } else {
-            //Set new users first name and teacher_id
-            const newUserVID = {"property" : "company", "value" : req.query.teacher_id}
-            const newUserName = {"property" : "firstname", "value" : req.query.name}
             //Add new user info to JSON for API call
-            let copyNewUserProperties = [...newUserProperties.properties]
-            copyNewUserProperties.push(newUserVID, newUserName)
-            newUserProperties.properties = copyNewUserProperties
+            let newUserNameID = [{"property" : "company", "value" : req.query.teacher_id}, {"property" : "firstname", "value" : req.query.name}]
+            copyNewUserProperties = [...newUserProperties.properties]
+            const createNewUser = copyNewUserProperties.concat(newUserNameID)
+            const newUserWithProperties = {
+                "properties" : createNewUser
+            }
             axios
-            .post(`https://api.hubapi.com/contacts/v1/contact/?hapikey=${process.env.HS_API}`, newUserProperties)
+            .post(`https://api.hubapi.com/contacts/v1/contact/?hapikey=${process.env.HS_API}`, newUserWithProperties)
             .then(newUser => {
                 userVID = newUser.data.vid
                 res.json({userVID: userVID})
@@ -96,6 +97,7 @@ app.get('/update', (req, res) => {
     let updateProperty = {"property" : req.query.updateProperty, "value" : "true"};
     updateContactProperty.properties = []
     updateContactProperty.properties.push(updateProperty)
+    console.log(userVID, updateContactProperty)
     axios
     .post(`https://api.hubapi.com/contacts/v1/contact/vid/${userVID}/profile?hapikey=${process.env.HS_API}`, updateContactProperty)
     .then(res.status(200))
