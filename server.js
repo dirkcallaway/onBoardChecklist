@@ -3,9 +3,11 @@ const axios = require('axios')
 require('dotenv').config()
 const newUserProperties = require('./newUserProperties')
 const updateContactProperty = require('./updateContactProperty')
+var cors = require('cors')
 const path = require('path')
 
-const app = express();
+const app = express()
+app.use(cors())
 
 if(process.env.NODE_ENV === 'production') {
     app.use(express.static(__dirname + '/public'))
